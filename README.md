@@ -8,13 +8,13 @@
 [![Codecov](https://img.shields.io/codecov/c/github/bitjson/typescript-starter.svg)](https://codecov.io/gh/bitjson/typescript-starter)
 [![GitHub stars](https://img.shields.io/github/stars/bitjson/typescript-starter.svg?style=social&logo=github&label=Stars)](https://github.com/rohanpradev/typescript-node-starter)
 
-## Makes use of pnpm
+## Start Now
+
+Makes use of pnpm which is highly performance oriented
 
 <p align="center">
  <img alt="pnpm logo" src="https://pnpm.io/assets/images/pnpm-standard-79c9dbb2e99b8525ae55174580061e1b.svg">
 </p>
-
-## Start Now
 
 Run one simple command to install and use the interactive project generator. You'll need [Node](https://nodejs.org/) `v10` or later.
 
@@ -51,11 +51,13 @@ pnpm dev
 ```
 
 ## Run in Production
+
 To start working, run the `pnpm build` task using [`pnpm`](https://pnpm.io/).
 
 ```sh
 pnpm build
 ```
+
 Since only changed files are rebuilt and retested, this workflow remains fast even for large projects.
 
 ## Enable stronger type checking (recommended)
@@ -79,4 +81,3 @@ To automatically fix `eslint` and `prettier` formatting issues, run:
 pnpm lint:fix
 pnpm prettier:fix
 ```
-

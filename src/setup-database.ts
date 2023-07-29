@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
-import { config } from './config';
-import logger from './logger';
+import { config } from '@root/config';
+import logger from '@root/logger';
 
 export default () => {
   const connect = () => {
