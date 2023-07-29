@@ -1,11 +1,17 @@
-<img height="0" width="0" alt="typescript-starter dark logo" src="https://www.typescriptlang.org/images/branding/logo-grouping.svg"><img alt="pnpm logo" src="https://pnpm.io/assets/images/pnpm-standard-79c9dbb2e99b8525ae55174580061e1b.svg">
+# Typescript Node starter
+
+<p>
+  <img height="300px" alt="typescript logo" src="https://upload.wikimedia.org/wikipedia/commons/thumb/4/4c/Typescript_logo_2020.svg/768px-    Typescript_logo_2020.svg.png?20221110153201">
+</p>
 
 [![NPM version](https://img.shields.io/npm/v/typescript-starter.svg)](https://www.npmjs.com/package/typescript-starter)
 [![Codecov](https://img.shields.io/codecov/c/github/bitjson/typescript-starter.svg)](https://codecov.io/gh/bitjson/typescript-starter)
 [![GitHub stars](https://img.shields.io/github/stars/bitjson/typescript-starter.svg?style=social&logo=github&label=Stars)](https://github.com/rohanpradev/typescript-node-starter)
 
+## Makes use of pnpm
+
 <p align="center">
-  <img alt="demo of the typescript-starter command-line interface" src="https://cdn.rawgit.com/bitjson/typescript-starter/c3e3b7ec/demo.svg">
+ <img alt="pnpm logo" src="https://pnpm.io/assets/images/pnpm-standard-79c9dbb2e99b8525ae55174580061e1b.svg">
 </p>
 
 ## Start Now
@@ -34,10 +40,6 @@ Before you start, consider using an [editor with good typescript support](https:
 
 Also consider installing editor extensions for [ESLint](https://github.com/Microsoft/vscode-eslint) and [Prettier](https://github.com/prettier/prettier-vscode). These extensions automatically format your code each time you save, and may quickly become invaluable.
 
-<p align="center">
-  <img alt="Typescript Editor Support – vscode" width="600" src="https://cloud.githubusercontent.com/assets/904007/23042221/ccebd534-f465-11e6-838d-e2449899282c.png">
-</p>
-
 # Developing with Typescript starter
 
 ## Run in Development
@@ -54,8 +56,6 @@ To start working, run the `pnpm build` task using [`pnpm`](https://pnpm.io/).
 ```sh
 pnpm build
 ```
-
-
 Since only changed files are rebuilt and retested, this workflow remains fast even for large projects.
 
 ## Enable stronger type checking (recommended)
