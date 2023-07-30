@@ -1,4 +1,5 @@
 import dotenv from 'dotenv';
+import { v2 as cloudinary } from 'cloudinary';
 
 dotenv.config({});
 
@@ -13,7 +14,9 @@ class Config {
   public REDIS_USERNAME: string | undefined;
   public REDIS_PASSWORD: string | undefined;
   public REDIS_PORT: number | undefined;
-
+  public CLOUD_NAME: string | undefined;
+  public CLOUD_API_KEY: string | undefined;
+  public CLOUD_API_SECRET: string | undefined;
   private readonly DEFAULT_NODE_ENV = 'development';
 
   constructor() {
@@ -27,12 +30,23 @@ class Config {
     this.REDIS_PASSWORD = process.env.REDIS_PASSWORD;
     this.REDIS_PORT = Number(process.env.REDIS_PORT);
     this.REDIS_USERNAME = process.env.REDIS_USERNAME;
+    this.CLOUD_NAME = process.env.CLOUD_NAME;
+    this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
+    this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET;
   }
 
   public validateConfig(): void {
     for (const [key, value] of Object.entries(this)) {
       if (!value) throw new Error(`Configuration ${key} is not present`);
     }
+  }
+
+  public cloudinaryConfig(): void {
+    cloudinary.config({
+      cloud_name: this.CLOUD_NAME,
+      api_key: this.CLOUD_API_KEY,
+      api_secret: this.CLOUD_API_SECRET,
+    });
   }
 }
 
