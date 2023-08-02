@@ -1,4 +1,5 @@
 import HTTP_STATUS from 'http-status-codes';
+import { ValidationError } from 'joi';
 
 export interface IErrorResponse {
   message: string;
@@ -29,8 +30,9 @@ export abstract class CustomError extends Error {
 export class JoiRequestValidationError extends CustomError {
   statusCode = HTTP_STATUS.BAD_GATEWAY;
   status = 'error';
-  constructor(message: string) {
-    super(message);
+  constructor(err: ValidationError) {
+    const message = err?.details.map((e) => e.message).join(';');
+    super(message || 'Request Validation failed');
   }
 }
 
