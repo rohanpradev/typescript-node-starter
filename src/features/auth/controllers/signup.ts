@@ -1,6 +1,8 @@
 import { Request, Response } from 'express';
 import { Types } from 'mongoose';
 import HTTP_STATUS from 'http-status-codes';
+import { omit } from 'lodash';
+import jwt from 'jsonwebtoken';
 import { validateWithJoiDecorator } from '@global/decorators/joi-validation.decorator';
 import { signupSchema } from '@auth/schemes/signup';
 import { authService } from '@service/db/auth.service';
@@ -8,6 +10,10 @@ import { BadRequestError } from '@global/helpers/error-handler';
 import { Helpers } from '@global/helpers/helpers';
 import { IAuthDocument, ISignUpData } from '@auth/interfaces/auth.interface';
 import { uploads } from '@global/helpers/cloudinary-upload';
+import { IUserDocument } from '@user/interfaces/user.interface';
+import { config } from '@root/config';
+import { userCache } from '@service/redis/user.cache';
+import { authQueue } from '@service/queues/auth.queue';
 
 class SignUp {
   @validateWithJoiDecorator<SignUp>(signupSchema)
@@ -31,7 +37,19 @@ class SignUp {
     const result = await uploads(avatarImage, `${userObjectId}`);
     if (!result?.public_id) throw new BadRequestError('File upload failed. Try again.');
 
-    res.status(HTTP_STATUS.CREATED).json({ message: 'User created successfully', authData });
+    // Add to redis cache
+    const userDataForCache: IUserDocument = SignUp.prototype.userData(authData, userObjectId);
+    userDataForCache.profilePicture = `https://res.cloudinary.com/${config.CLOUD_NAME}/image/upload/v${result.version}/${userObjectId}`;
+
+    await userCache.saveUserToCache(`${userObjectId}`, uId, userDataForCache);
+    omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
+    // Send to rabbit mq
+    authQueue.addAuthUserJob({ value: userDataForCache });
+
+    const userJWT: string = SignUp.prototype.signUpToken(authData, userObjectId);
+    req.session = { jwt: userJWT };
+
+    res.status(HTTP_STATUS.CREATED).json({ message: 'User created successfully', authData, token: userJWT });
   }
 
   private sanitizeSignUpData(data: ISignUpData): IAuthDocument {
@@ -45,6 +63,63 @@ class SignUp {
       password,
       avatarColor,
     } as IAuthDocument;
+  }
+
+  private userData(data: IAuthDocument, userObjectId: Types.ObjectId): IUserDocument {
+    const { _id, username, email, uId, password, avatarColor } = data;
+    return {
+      _id: userObjectId,
+      authId: _id,
+      username: Helpers.firstLetterUppercase(username),
+      email,
+      password,
+      avatarColor,
+      uId,
+      postsCount: 0,
+      work: '',
+      school: '',
+      quote: '',
+      location: '',
+      blocked: [],
+      blockedBy: [],
+      followersCount: 0,
+      followingCount: 0,
+      notifications: {
+        messages: true,
+        reactions: true,
+        comments: true,
+        follows: true,
+      },
+      social: {
+        facebook: '',
+        instagram: '',
+        twitter: '',
+        youtube: '',
+      },
+      bgImageVersion: '',
+      bgImageId: '',
+      profilePicture: '',
+    } as unknown as IUserDocument;
+  }
+
+  private signUpData(data: ISignUpData): IAuthDocument {
+    const { _id, username, email, uId, password, avatarColor } = data;
+    return {
+      _id,
+      uId,
+      username: Helpers.firstLetterUppercase(username),
+      email: Helpers.lowercase(email),
+      password,
+      avatarColor,
+      createdAt: new Date(),
+    } as IAuthDocument;
+  }
+
+  private signUpToken(data: IAuthDocument, userObjectId: Types.ObjectId): string {
+    return jwt.sign(
+      { userId: userObjectId, uId: data.uId, email: data.email, username: data.username },
+      config.JWT_TOKEN!
+    );
   }
 }
 
