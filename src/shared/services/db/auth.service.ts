@@ -13,6 +13,13 @@ class AuthService {
     };
     return AuthModel.findOne(query).exec() as Promise<IAuthDocument>;
   }
+
+  public async getUserByUsername(username: string): Promise<IAuthDocument> {
+    const query = {
+      username: Helpers.firstLetterUppercase(username),
+    };
+    return AuthModel.findOne(query).exec() as Promise<IAuthDocument>;
+  }
 }
 
 export const authService = new AuthService();

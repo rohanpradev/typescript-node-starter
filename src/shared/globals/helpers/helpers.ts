@@ -13,4 +13,14 @@ export class Helpers {
   static generateUid(): string {
     return randomUUID();
   }
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  static parseJson(prop: string): any {
+    try {
+      JSON.parse(prop);
+    } catch (error) {
+      return prop;
+    }
+    return JSON.parse(prop);
+  }
 }

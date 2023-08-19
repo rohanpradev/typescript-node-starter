@@ -2,7 +2,6 @@ import amqp from 'amqplib';
 import { IAuthJob } from '@auth/interfaces/auth.interface';
 import { IUserJob } from '@user/interfaces/user.interface';
 import { config } from '@root/config';
-import logger from '@root/logger';
 
 type IBaseJob = IAuthJob | IUserJob;
 
@@ -43,12 +42,13 @@ export abstract class BaseQueue {
     channel.sendToQueue(this.queueName, Buffer.from(JSON.stringify(message.content)), messageOptions);
   }
 
-  protected async listenToEvent(handler: RabbitMQEventHandler): Promise<void> {
+  protected async listenToEvent(handler: any): Promise<void> {
     const channel = await this.channelPromise;
     channel.consume(this.queueName, async (message) => {
       if (message) {
         const content = JSON.parse(message.content.toString());
-        handler(content);
+        console.log(content.value);
+        handler(content.value);
         channel.ack(message);
       }
     });

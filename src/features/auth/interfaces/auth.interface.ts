@@ -41,6 +41,15 @@ export interface ISignUpData {
   avatarColor: string;
 }
 
+export interface ISignInData {
+  userId?: string;
+  uId: string;
+  email: string;
+  username: string;
+  password: string;
+  avatarColor: string;
+}
+
 export interface IAuthJob {
   value?: string | IAuthDocument | IUserDocument;
 }

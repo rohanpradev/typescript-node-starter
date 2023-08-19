@@ -12,15 +12,18 @@ import { IAuthDocument, ISignUpData } from '@auth/interfaces/auth.interface';
 import { uploads } from '@global/helpers/cloudinary-upload';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { config } from '@root/config';
-import { userCache } from '@service/redis/user.cache';
+import { UserCache } from '@service/redis/user.cache';
 import { authQueue } from '@service/queues/auth.queue';
+import { userQueue } from '@service/queues/user.queue';
+
+const userCache: UserCache = new UserCache();
 
 class SignUp {
   @validateWithJoiDecorator<SignUp>(signupSchema)
   public async create(req: Request, res: Response): Promise<void> {
     const { username, email, password, avatarColor, avatarImage } = req.body;
     const existingUser = await authService.getUserByUsernameOrEmail(username, email);
-    if (existingUser) throw new BadRequestError('Acoount already exists.');
+    if (existingUser) throw new BadRequestError('Account already exists.');
 
     const authObjectId: Types.ObjectId = new Types.ObjectId();
     const userObjectId: Types.ObjectId = new Types.ObjectId();
@@ -43,11 +46,13 @@ class SignUp {
 
     await userCache.saveUserToCache(`${userObjectId}`, uId, userDataForCache);
     omit(userDataForCache, ['uId', 'username', 'email', 'avatarColor', 'password']);
-    // Send to rabbit mq
-    authQueue.addAuthUserJob({ value: userDataForCache });
 
     const userJWT: string = SignUp.prototype.signUpToken(authData, userObjectId);
     req.session = { jwt: userJWT };
+
+    // Send to rabbit mq to save to mongo db in the background
+    authQueue.addAuthUserJob({ value: authData });
+    userQueue.addUserJob({ value: userDataForCache });
 
     res.status(HTTP_STATUS.CREATED).json({ message: 'User created successfully', authData, token: userJWT });
   }
@@ -100,19 +105,6 @@ class SignUp {
       bgImageId: '',
       profilePicture: '',
     } as unknown as IUserDocument;
-  }
-
-  private signUpData(data: ISignUpData): IAuthDocument {
-    const { _id, username, email, uId, password, avatarColor } = data;
-    return {
-      _id,
-      uId,
-      username: Helpers.firstLetterUppercase(username),
-      email: Helpers.lowercase(email),
-      password,
-      avatarColor,
-      createdAt: new Date(),
-    } as IAuthDocument;
   }
 
   private signUpToken(data: IAuthDocument, userObjectId: Types.ObjectId): string {
