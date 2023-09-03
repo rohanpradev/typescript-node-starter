@@ -1,9 +1,9 @@
 import amqp from 'amqplib';
 import { IAuthJob } from '@auth/interfaces/auth.interface';
-import { IUserJob } from '@user/interfaces/user.interface';
+import { IEmailJob, IUserJob } from '@user/interfaces/user.interface';
 import { config } from '@root/config';
 
-type IBaseJob = IAuthJob | IUserJob;
+type IBaseJob = IAuthJob | IUserJob | IEmailJob;
 
 export interface RabbitMQMessage {
   content: IBaseJob;
@@ -47,8 +47,7 @@ export abstract class BaseQueue {
     channel.consume(this.queueName, async (message) => {
       if (message) {
         const content = JSON.parse(message.content.toString());
-        console.log(content.value);
-        handler(content.value);
+        handler(content?.value || content);
         channel.ack(message);
       }
     });

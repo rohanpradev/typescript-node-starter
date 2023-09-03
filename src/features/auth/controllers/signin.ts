@@ -10,6 +10,8 @@ import { ISignInData } from '@auth/interfaces/auth.interface';
 import { config } from '@root/config';
 import { IUserDocument } from '@user/interfaces/user.interface';
 import { userService } from '@service/db/user.service';
+import { forgotPasswordTemplate } from '@service/emails/templates/forgot-password/forgot-password';
+import { emailQueue } from '@service/queues/email.queue';
 
 class SignIn {
   @validateWithJoiDecorator<SignIn>(loginSchema)
@@ -36,6 +38,11 @@ class SignIn {
       uId: existingUser.uId,
       createdAt: existingUser.createdAt,
     } as IUserDocument;
+
+    const resetLink = 'https://www.mailinator.com/';
+    const template: string = forgotPasswordTemplate.passwordResetTemplate(existingUser.username!, resetLink);
+    emailQueue.addEmailJob({ template, receiverEmail: 'justine44@ethereal.email', subject: 'Password reset Link' });
+
     res.status(HTTP_STATUS.OK).json({ message: 'User logged in successfully', user: userDocument, token: userJWT });
   }
 

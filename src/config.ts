@@ -18,6 +18,10 @@ class Config {
   public CLOUD_API_KEY: string | undefined;
   public CLOUD_API_SECRET: string | undefined;
   public RABBIT_MQ_URL: string | undefined;
+  public SENDER_EMAIL: string | undefined;
+  public SENDER_EMAIL_PASSWORD: string | undefined;
+  public SENDGRID_API_KEY: string | undefined;
+  public SENDGRID_SENDER: string | undefined;
   private readonly DEFAULT_NODE_ENV = 'development';
 
   constructor() {
@@ -35,6 +39,10 @@ class Config {
     this.CLOUD_API_KEY = process.env.CLOUD_API_KEY;
     this.CLOUD_API_SECRET = process.env.CLOUD_API_SECRET;
     this.RABBIT_MQ_URL = process.env.RABBIT_MQ_URL;
+    this.SENDER_EMAIL = process.env.SENDER_EMAIL;
+    this.SENDER_EMAIL_PASSWORD = process.env.SENDER_EMAIL_PASSWORD;
+    this.SENDGRID_API_KEY = process.env.SENDGRID_API_KEY;
+    this.SENDGRID_SENDER = process.env.SENDGRID_SENDER;
   }
 
   public validateConfig(): void {
